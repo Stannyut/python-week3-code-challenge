@@ -18,13 +18,23 @@ def get_venue_for_concert(concert_id, connection):
     cursor = connection.execute(query, (concert_id,))
     return cursor.fetchone()
 
-def is_hometown_show(concert_id, connection):
-    query = """
-    SELECT CASE WHEN bands.hometown = venues.city THEN 1 ELSE 0 END AS hometown_show
-    FROM concerts
-    JOIN bands ON concerts.band_id = bands.id
-    JOIN venues ON concerts.venue_id = venues.id
-    WHERE concerts.id = ?
-    """
-    cursor = connection.execute(query, (concert_id,))
-    return cursor.fetchone()[0] == 1
+# def is_hometown_show(concert_id, connection):
+#     query = """
+#     SELECT CASE WHEN bands.hometown = venues.city THEN 1 ELSE 0 END AS hometown_show
+#     FROM concerts
+#     JOIN bands ON concerts.band_id = bands.id
+#     JOIN venues ON concerts.venue_id = venues.id
+#     WHERE concerts.id = ?
+#     """
+#     cursor = connection.execute(query, (concert_id,))
+#     return cursor.fetchone()[0] == 1
+
+def is_hometown_show(band_id, connection):
+    cursor = connection.cursor()
+    cursor.execute("SELECT is_hometown FROM concerts WHERE band_id = ?", (band_id,))
+    result = cursor.fetchone()
+    
+    if result is None:
+        return False  # Or handle the case appropriately if no result is found
+    return result[0] == 1
+
